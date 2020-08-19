@@ -19,23 +19,18 @@ class StateController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Robot $robot)
+    public function index()
     {
         $user = Auth::user();
-        if ($user->hasRobot($robot)) {
-            $states = $robot->states()->getResults()->unique();
-            return view('layouts.list', $data = [
-                'collection' => $states,
-                'creation_route' => 'create_state',
-                'creation_args' => [
-                    'robot' => $robot
-                ],
-                'creation_text' => 'Add State',
-                'destroy_route' => 'destroy_state',
-                'edit_route' => 'edit_state',
-                'card_view' => 'cards.state'
-            ]);
-        }
+        $states = $user->states()->getResults()->unique();
+        return view('layouts.list', [
+            'collection' => $states,
+            'creation_route' => 'states.create',
+            'creation_text' => 'Add State',
+            'destroy_route' => 'states.destroy',
+            'edit_route' => 'states.edit',
+            'card_view' => 'cards.state'
+        ]);
     }
 
     /**
@@ -43,14 +38,14 @@ class StateController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create(Robot $robot)
+    public function create()
     {
+        $robots = Auth::user()->robots;
         return view('forms.state', [
-            'route_name' => 'store_state',
-            'route_args' => [
-                'robot' => $robot
-            ],
-            'btn_text' => 'Create State'
+            'route_name' => 'states.store',
+            'btn_text' => 'Create State',
+            'update' => false,
+            'robots' => $robots
         ]);
     }
 
@@ -60,18 +55,15 @@ class StateController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Robot $robot, StateRequest $request)
+    public function store(StateRequest $request)
     {
         $user = Auth::user();
-        if (!$user->hasRobot($robot)) {
-            return redirect(route('home'));
-        }
         $validated = $request->validated();
         $state = new State();
         $state->setName($validated['name']);
         $state->description = $validated['description'];
         $state->author()->associate($user);
-        $state->robot()->associate($robot);
+        $state->robot()->associate(Robot::find($validated['robot']));
         $state->save();
         foreach ($validated['parameter_keys'] as $index => $parameter_key) {
             $parameter_value = $validated['parameter_values'][$index];
@@ -101,9 +93,7 @@ class StateController extends Controller
             $state_outcome->state()->associate($state);
             $state_outcome->save();
         }
-        return redirect(route('list_states', $parameters = [
-            'robot' => $robot
-        ]));
+        return redirect(route('states.index'));
     }
 
     /**
@@ -123,14 +113,16 @@ class StateController extends Controller
      * @param  \App\State  $state
      * @return \Illuminate\Http\Response
      */
-    public function edit(Robot $robot, State $state)
+    public function edit(State $state)
     {
+        $robots = Auth::user()->robots;
         return view('forms.state', [
-            'route_name' => 'update_state',
+            'route_name' => 'states.update',
             'route_args' => [
-                'robot' => $robot,
                 'state' => $state
             ],
+            'update' => true,
+            'robots' => $robots,
             'item' => $state,
             'btn_text' => 'Save'
         ]);
@@ -143,10 +135,10 @@ class StateController extends Controller
      * @param  \App\State  $state
      * @return \Illuminate\Http\Response
      */
-    public function update(Robot $robot, StateRequest $request, State $state)
+    public function update(StateRequest $request, State $state)
     {
         $user = Auth::user();
-        if (!$user->hasRobot($robot)) {
+        if (!$user->hasState($state)) {
             return redirect(route('home'));
         }
         $validated = $request->validated();
@@ -222,9 +214,7 @@ class StateController extends Controller
             $state_outcome->save();
         }
         $state->save();
-        return redirect(route('list_states', $parameters = [
-            'robot' => $robot
-        ]));
+        return redirect(route('states.index'));
     }
 
     /**
@@ -233,9 +223,9 @@ class StateController extends Controller
      * @param  \App\State  $state
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Robot $robot, State $state)
+    public function destroy(State $state)
     {
         $state->delete();
-        return redirect(route('list_states', $robot));
+        return redirect(route('states.index'));
     }
 }

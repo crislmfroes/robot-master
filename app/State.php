@@ -17,6 +17,11 @@ class State extends Model
         $this->className = Str::replaceArray(' ', [''], mb_convert_case($this->name, MB_CASE_UPPER)) . 'State';
     }
 
+    public function template()
+    {
+        return $this->hasOne('App\State', 'template_state');
+    }
+
     public function availableParams()
     {
         return $this->hasMany('App\StateParam');

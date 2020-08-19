@@ -15,6 +15,9 @@
             @endif
             <form method="POST" action="{{ route($route_name, $route_args ?? null) }}">
                 @csrf
+                @if($update === true)
+                @method('PUT')
+                @endif
                 @yield('form-fields')
                 <div class="form-group">
                     <button type="submit" class="btn btn-primary">

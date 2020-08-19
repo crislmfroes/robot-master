@@ -14,8 +14,8 @@ class CreateUserRobotTable extends Migration
     public function up()
     {
         Schema::create('user_robot', function (Blueprint $table) {
-            $table->foreignId('user_id')->references('id')->on('users')->primary();
-            $table->foreignId('robot_id')->references('id')->on('robots')->primary();
+            $table->foreignId('user_id')->references('id')->on('users')->onDelete('cascade')->onUpdate('cascade')->primary();
+            $table->foreignId('robot_id')->references('id')->on('robots')->onDelete('cascade')->onUpdate('cascade')->primary();
             $table->timestamps();
         });
     }

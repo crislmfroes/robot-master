@@ -72,36 +72,49 @@
             </div>
         </nav>
 
+        @if (!Request::is(['register', 'login']))
+
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
-                @if (Request::is('*'))
+                @if (Request::is(['', 'robots/*', 'states/*', 'behaviors/*']))
                 <li class="breadcrumb-item active">
-                    @if (Request::is('home'))
+                    @if (Request::is(''))
                     Home
                     @else
                     <a href="{{ route('home') }}">Home</a>
                     @endif
                 </li>
                 @endif
-                @if (Request::is('robot/*'))
+                @if (Request::is(['robots', 'robots/*']))
                 <li class="breadcrumb-item active">
-                    @if (Request::is('robot/index'))
+                    @if (Request::is('robots'))
                     Robots
                     @else
-                    <a href="{{ route('list_robots') }}">Robots</a>
+                    <a href="{{ route('robots.index') }}">Robots</a>
                     @endif
                 </li>
                 @endif
-                @isset($creation_args['robot'])
-                @if(Request::is('robot/*/behavior/*'))
-                <li class="breadcrumb-item active">Behaviors</li>
+                @if(Request::is(['behaviors', 'behaviors/*']))
+                <li class="breadcrumb-item active">
+                    @if (Request::is('behaviors'))
+                    Behaviors
+                    @else
+                    <a href="{{ route('behaviors.index') }}">Behaviors</a>
+                    @endif
+                </li>
                 @endif
-                @if(Request::is('robot/*/state/*'))
-                <li class="breadcrumb-item active">States</li>
+                @if(Request::is(['states', 'states/*']))
+                <li class="breadcrumb-item active">
+                    @if (Request::is('states'))
+                    States
+                    @else
+                    <a href="{{ route('states.index') }}">States</a>
+                    @endif
+                </li>
                 @endif
-                @endisset
             </ol>
         </nav>
+        @endif
 
         <main class="py-4">
             @yield('content')

@@ -20,23 +20,18 @@ class BehaviorController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Robot $robot)
+    public function index()
     {
         $user = Auth::user();
-        if ($user->hasRobot($robot)) {
-            $behaviors = $robot->behaviors()->getResults()->unique();
-            return view('layouts.list', $data = [
-                'collection' => $behaviors,
-                'creation_route' => 'create_behavior',
-                'creation_args' => [
-                    'robot' => $robot
-                ],
-                'creation_text' => 'Add Behavior',
-                'destroy_route' => 'destroy_behavior',
-                'edit_route' => 'edit_behavior',
-                'card_view' => 'cards.behavior'
-            ]);
-        }
+        $behaviors = $user->behaviors()->getResults()->unique();
+        return view('layouts.list', [
+            'collection' => $behaviors,
+            'creation_route' => 'behaviors.create',
+            'creation_text' => 'Add Behavior',
+            'destroy_route' => 'behaviors.destroy',
+            'edit_route' => 'behaviors.edit',
+            'card_view' => 'cards.behavior'
+        ]);
     }
 
     /**
@@ -44,14 +39,14 @@ class BehaviorController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create(Robot $robot)
+    public function create()
     {
+        $robots = Auth::user()->robots;
         return view('forms.behavior', [
-            'route_name' => 'store_behavior',
-            'route_args' => [
-                'robot' => $robot
-            ],
-            'btn_text' => 'Create Behavior'
+            'route_name' => 'behaviors.store',
+            'robots' => $robots,
+            'btn_text' => 'Create Behavior',
+            'update' => false,
         ]);
     }
 
@@ -61,18 +56,15 @@ class BehaviorController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Robot $robot, BehaviorRequest $request)
+    public function store(BehaviorRequest $request)
     {
         $user = Auth::user();
-        if (!$user->hasRobot($robot)) {
-            return redirect(route('home'));
-        }
         $validated = $request->validated();
         $behavior = new Behavior();
         $behavior->setName($validated['name']);
         $behavior->description = $validated['description'];
         $behavior->author()->associate($user);
-        $behavior->robot()->associate($robot);
+        $behavior->robot()->associate(Robot::find($validated['robot']));
         $behavior->save();
         foreach ($validated['parameter_keys'] as $index => $parameter_key) {
             $parameter_value = $validated['parameter_values'][$index];
@@ -102,9 +94,7 @@ class BehaviorController extends Controller
             $behavior_outcome->behavior()->associate($behavior);
             $behavior_outcome->save();
         }
-        return redirect(route('list_behaviors', $parameters = [
-            'robot' => $robot
-        ]));
+        return redirect(route('behaviors.index'));
     }
 
     /**
@@ -115,7 +105,10 @@ class BehaviorController extends Controller
      */
     public function show(Behavior $behavior)
     {
-        //
+        /*return redirect(route('behavior_diagram', [
+            'robot' => $robot,
+            'behavior' => $behavior
+        ]));*/
     }
 
     /**
@@ -124,14 +117,16 @@ class BehaviorController extends Controller
      * @param  \App\Behavior  $behavior
      * @return \Illuminate\Http\Response
      */
-    public function edit(Robot $robot, Behavior $behavior)
+    public function edit(Behavior $behavior)
     {
+        $robots = Auth::user()->robots;
         return view('forms.behavior', [
-            'route_name' => 'update_behavior',
+            'route_name' => 'behaviors.update',
             'route_args' => [
-                'robot' => $robot,
                 'behavior' => $behavior
             ],
+            'update' => true,
+            'robots' => $robots,
             'item' => $behavior,
             'btn_text' => 'Save'
         ]);
@@ -144,10 +139,10 @@ class BehaviorController extends Controller
      * @param  \App\Behavior  $behavior
      * @return \Illuminate\Http\Response
      */
-    public function update(Robot $robot, BehaviorRequest $request, Behavior $behavior)
+    public function update(BehaviorRequest $request, Behavior $behavior)
     {
         $user = Auth::user();
-        if (!$user->hasRobot($robot)) {
+        if (!$user->hasBehavior($behavior)) {
             return redirect(route('home'));
         }
         $validated = $request->validated();
@@ -223,9 +218,7 @@ class BehaviorController extends Controller
             $behavior_outcome->save();
         }
         $behavior->save();
-        return redirect(route('list_behaviors', $parameters = [
-            'robot' => $robot
-        ]));
+        return redirect(route('behaviors.index'));
     }
 
     /**
@@ -234,9 +227,9 @@ class BehaviorController extends Controller
      * @param  \App\Behavior  $behavior
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Robot $robot, Behavior $behavior)
+    public function destroy(Behavior $behavior)
     {
         $behavior->delete();
-        return redirect(route('list_behaviors', $robot));
+        return redirect(route('behaviors.index'));
     }
 }

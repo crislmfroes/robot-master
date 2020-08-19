@@ -21,12 +21,12 @@ class RobotController extends Controller
         if (!$robots) {
             $robots = [];
         }
-        return view('layouts.list', $data=[
+        return view('layouts.list', [
             'collection' => $robots,
-            'creation_route' => 'create_robot',
+            'creation_route' => 'robots.create',
             'creation_text' => 'Add Robot',
-            'destroy_route' => 'destroy_robot',
-            'edit_route' => 'edit_robot',
+            'destroy_route' => 'robots.destroy',
+            'edit_route' => 'robots.edit',
             'card_view' => 'cards.robot'
         ]);
     }
@@ -38,9 +38,10 @@ class RobotController extends Controller
      */
     public function create()
     {
-        return view('forms.robot', $data=[
-            'route_name' => 'store_robot',
-            'btn_text' => 'Create Robot'
+        return view('forms.robot', [
+            'route_name' => 'robots.store',
+            'btn_text' => 'Create Robot',
+            'update' => false,
         ]);
     }
 
@@ -59,7 +60,7 @@ class RobotController extends Controller
         $user = Auth::user();
         $robot->users()->attach([$user->id]);
         $robot->save();
-        return redirect(route('list_robots'));
+        return redirect(route('robots.index'));
     }
 
     /**
@@ -81,12 +82,13 @@ class RobotController extends Controller
      */
     public function edit(Robot $robot)
     {
-        return view('forms.robot', $data = [
-            'route_name' => 'update_robot',
+        return view('forms.robot', [
+            'route_name' => 'robots.update',
             'route_args' => [
                 'robot' => $robot
             ],
             'btn_text' => 'Save',
+            'update' => true,
             'item' => $robot
         ]);
     }
@@ -105,7 +107,7 @@ class RobotController extends Controller
         if ($user->hasRobot($robot)) {
             $robot->update($validated);
         }
-        return redirect(route('list_robots'));
+        return redirect(route('robots.index'));
     }
 
     /**
@@ -120,6 +122,6 @@ class RobotController extends Controller
         if ($user->hasRobot($robot)) {
             $robot->delete();
         }
-        return redirect(route('list_robots'));
+        return redirect(route('robots.index'));
     }
 }

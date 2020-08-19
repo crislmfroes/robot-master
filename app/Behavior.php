@@ -9,13 +9,18 @@ use Illuminate\Database\Eloquent\Model;
 class Behavior extends Model
 {
     protected $fillable = [
-        'name', 'description', 'className'
+        'name', 'description', 'className', 'outcomes'
     ];
 
     public function setName($name)
     {
         $this->name = $name;
         $this->className = 'get'.Str::replaceArray(' ', [''], mb_convert_case($this->name, MB_CASE_UPPER)).'Machine';
+    }
+
+    public function template()
+    {
+        return $this->hasOne('App\Behavior', 'template_behavior');
     }
 
     public function robot()

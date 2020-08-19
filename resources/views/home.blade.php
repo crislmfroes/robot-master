@@ -17,7 +17,9 @@
                     {{ __('Welcome back '.Auth::user()->name.'!') }}
                 </div>
                 <div class="card-body">
-                    <a class="btn btn-primary" href="{{ route('list_robots') }}">My Robots</a>
+                    <a class="btn btn-primary" href="{{ route('robots.index') }}">My Robots</a>
+                    <a href="{{ route('behaviors.index') }}" class="btn btn-success">Behaviors</a>
+                    <a href="{{ route('states.index') }}" class="btn btn-secondary">States</a>
                 </div>
             </div>
         </div>

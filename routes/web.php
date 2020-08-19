@@ -20,7 +20,7 @@ Route::get('/', function () {
 Auth::routes();
 
 Route::get('/home', 'HomeController@index')->name('home');
-
+/*
 Route::get('/robot/create', 'RobotController@create')->name('create_robot')->middleware('auth');
 Route::post('/robot/store', 'RobotController@store')->name('store_robot')->middleware('auth');
 Route::post('/robot/update/{robot}', 'RobotController@update')->name('update_robot')->middleware('auth');
@@ -41,3 +41,8 @@ Route::get('/robot/{robot}/state/edit/{state}', 'StateController@edit')->name('e
 Route::get('/robot/{robot}/state/destroy/{state}', 'StateController@destroy')->name('destroy_state')->middleware('auth');
 Route::post('/robot/{robot}/state/store', 'StateController@store')->name('store_state')->middleware('auth');
 Route::post('/robot/{robot}/state/update/{state}', 'StateController@update')->name('update_state')->middleware('auth');
+*/
+
+Route::middleware('auth')->resource('robots', 'RobotController');
+Route::middleware('auth')->resource('behaviors', 'BehaviorController');
+Route::middleware('auth')->resource('states', 'StateController');

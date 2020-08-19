@@ -26,7 +26,8 @@ class StateRequest extends FormRequest
     {
         $validation_rules = [
             'name' => 'required|max:255',
-            'description' => 'required|min:10'
+            'description' => 'required|min:10',
+            'robot' => 'integer|required'
         ];
         foreach ($this->get('input_keys') as $key => $value) {
             $validation_rules['input_keys.' . $key] = [

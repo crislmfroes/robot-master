@@ -44,15 +44,25 @@ class User extends Authenticatable
 
     public function behaviors()
     {
-        return $this->hasMany('App\Behavior');
+        return $this->hasMany('App\Behavior', 'author_id');
     }
 
     public function states()
     {
-        return $this->hasMany('App\State');
+        return $this->hasMany('App\State', 'author_id');
     }
 
     public function hasRobot(Robot $robot) {
         return $this->robots->contains($robot);
+    }
+
+    public function hasBehavior(Behavior $behavior)
+    {
+        return $this->behaviors->contains($behavior);
+    }
+
+    public function hasState(State $state)
+    {
+        return $this->states->contains($state);
     }
 }
