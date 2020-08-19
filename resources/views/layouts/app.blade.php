@@ -76,9 +76,9 @@
 
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
-                @if (Request::is(['', 'robots/*', 'states/*', 'behaviors/*']))
+                @if (Request::is(['robots', 'states', 'behaviors', 'robots/*', 'states/*', 'behaviors/*', 'home']))
                 <li class="breadcrumb-item active">
-                    @if (Request::is(''))
+                    @if (Request::is('home'))
                     Home
                     @else
                     <a href="{{ route('home') }}">Home</a>
